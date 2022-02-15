@@ -1,28 +1,32 @@
 package com.example.kotlindemo
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
+import android.databinding.DataBindingUtil
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : BaseActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
 
-        MyApplication().onCreate()
+        val mainViewModel = ViewModelProviders.of(this)
+            .get(MainViewModel::class.java)
 
-        Toast.makeText(this, "Person Name :: " + person.name, Toast.LENGTH_SHORT).show()
+        DataBindingUtil.setContentView<com.example.kotlindemo.databinding.ActivityMainBinding>(
+            this, R.layout.activity_main
+        ).apply {
+            this.setLifecycleOwner(this@MainActivity)
+            this.viewModel = mainViewModel
+        }
 
-        /*val person = inject<Person>("person")
-        println("Person's name : ${person.value.name}")
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }*/
+        mainViewModel.editTextContent.observe(this, Observer {
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
